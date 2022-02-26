@@ -1,0 +1,50 @@
+{
+  "controls": {
+    "edit-wz": {
+      "en": "Add / Remove Zones",
+      "fr": "Modifier les Régions"
+    },
+    "edit-param": {
+      "en": "Edit Parameters",
+      "fr": "Modifier les Paramètres"
+    },
+    "edit-wp": {
+      "en": "Add / Remove Waypoints",
+      "fr": "Modifier les Points de Cheminement"
+    },
+    "gen-rts": {
+      "en": "Predict Routes",
+      "fr": "Prédire les Itinéraires"
+    },
+    "save-edits": {
+      "en": "Save Edits",
+      "fr": "Enregistrer les Modifications"
+    },
+    "clear-edits": {
+      "en": "Clear Edits",
+      "fr": "Effacer les Modifications"
+    },
+    "start-edit": {
+      "en": "Edit Laydown",
+      "fr": "Modifier la Mise en Page"
+    },
+    "end-edit-session": {
+      "en": "End Edit Session",
+      "fr": "Terminer la Session d'édition"
+    }
+  },
+  "featureData": {
+    "wz": {
+      "weight": {
+        "en": "Weight",
+        "fr": "Poids"
+      }
+    }
+  },
+  "general": {
+    "page_title": {
+      "en": "Interdiction Simulator",
+      "fr": "Simulateur d'Interdiction"
+    }
+  }
+}
