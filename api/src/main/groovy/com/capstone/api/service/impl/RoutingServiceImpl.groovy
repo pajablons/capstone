@@ -18,6 +18,7 @@ import org.geotools.grid.Grids
 import org.geotools.referencing.CRS
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.Polygon
+import org.locationtech.jts.io.WKBReader
 import org.locationtech.jts.io.geojson.GeoJsonWriter
 import org.opengis.feature.simple.SimpleFeature
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,12 +44,55 @@ class RoutingServiceImpl implements RoutingService {
 
     @Override
     List<RouteSegment> generateRoute(int profile_id, int src, int dst) {
-        return this.route_repository.getRoutes(src, dst)
+        String sql = "select gid, cost, the_geom from ways where gid in (select edge from pgr_dijkstra('select pt.gid as id, pt.source as source, pt.target as target, (cost_s * -1) as reverse_cost, coalesce(cost_s + weight, cost_s) as cost from ways pt left join (select geom, weight from weighted_zones) py on ST_Intersects(py.geom, pt.the_geom) WHERE pt.the_geom && ST_Expand((SELECT ST_Collect(the_geom) FROM ways_vertices_pgr WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false))"
+        sql = sql.replaceAll(':src', "" + src)
+        sql = sql.replaceAll(':dst', "" + dst)
+
+        List<Map<String, Object>> obj = this.jdbcTemplate.queryForList(sql)
+        List<RouteSegment> retn = new ArrayList<RouteSegment>()
+        WKBReader reader = new WKBReader()
+        for (Map<String,Object> row : obj) {
+            RouteSegment seg = new RouteSegment()
+            seg.cost = (double)(row.get('cost'))
+            String wkb = (String)(row.get('the_geom'))
+            byte[] geom = WKBReader.hexToBytes(wkb)
+            seg.geom = reader.read(geom)
+            seg.id = (int)(row.get('gid'))
+            retn.add(seg)
+        }
+        return retn
     }
 
     @Override
     List<Routing_Wayzone> getWayzones(int profile_id, boolean source) {
         return this.wayzone_repo.retrieveZonesByProfile(profile_id, source)
+    }
+
+    double scoreCoverRegion2(
+            int trials,
+            int profile_id,
+            int src,
+            int dst,
+            String geometry
+    ) {
+        double totalScore = 0
+        for (int i = 0; i < trials; i++) {
+            println("Got here")
+            if (geometry != "") {
+                this.weightedZoneRepository.insert(geometry, 100000, "tmp_delete_me", profile_id)
+            }
+
+            String sql = "select agg_cost from pgr_dijkstraCost('select pt.gid as id, pt.source as source, pt.target as target, (cost_s * -1) as reverse_cost, coalesce(cost_s + weight, cost_s) as cost from ways pt left join (select geom, weight from weighted_zones) py on ST_Intersects(py.geom, pt.the_geom) WHERE pt.the_geom && ST_Expand((SELECT ST_Collect(the_geom) FROM ways_vertices_pgr WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false)"
+            sql = sql.replaceAll(':src', "" + src)
+            sql = sql.replaceAll(':dst', "" + dst)
+            double data = this.jdbcTemplate.queryForObject(sql, Double.class)
+            println("Got out of here: " + data)
+            if(geometry != "") {
+                this.weightedZoneRepository.deleteZone("tmp_delete_me")
+            }
+            totalScore += data
+        }
+        return totalScore
     }
 
     double scoreCoverRegion(
@@ -60,9 +104,7 @@ class RoutingServiceImpl implements RoutingService {
     ) {
         double totalScore = 0
         for (int i = 0; i < trials; i++) {
-            this.weightedZoneRepository.insert(geometry, 100000, "tmp_delete_me", profile_id)
             double result = this.route_repository.getRouteCost(src, dst)
-            this.weightedZoneRepository.deleteZone("tmp_delete_me")
             totalScore += result
         }
         return totalScore
@@ -83,10 +125,8 @@ class RoutingServiceImpl implements RoutingService {
         }
 
         List<RouteSegment> baseRoute = this.generateRoute(params.profile_id, params.src, params.dst)
-        double baseCost = 0
-        for (RouteSegment rs : baseRoute) {
-            baseCost += rs.cost
-        }
+        double baseCost = this.scoreCoverRegion2(1, 1, params.src, params.dst, "")
+        println("Base cost: " + baseCost)
 
         GeometryJSON gjson = new GeometryJSON()
         Reader reader = new StringReader(params.search_area_geojson)
@@ -94,7 +134,7 @@ class RoutingServiceImpl implements RoutingService {
         GeoJsonWriter gjw = new GeoJsonWriter()
         Polygon search_area = gjson.readPolygon(reader)
         Map<Integer, List<InterdictionZone>> tierTree = new HashMap<Integer, List<InterdictionZone>>()
-        int tiers = 3
+        int tiers = 6
         for (int i = 0; i < tiers; i++) {
             tierTree.put(i, new ArrayList<InterdictionZone>())
         }
@@ -130,7 +170,8 @@ class RoutingServiceImpl implements RoutingService {
                             InterdictionZone iz = new InterdictionZone()
                             g.setSRID(4326)
                             iz.gridSquare = g as Polygon
-                            double cost = this.scoreCoverRegion(1, 1, params.src, params.dst, gjw.write(g))
+                            //double cost = this.scoreCoverRegion(1, 1, params.src, params.dst, gjw.write(g))
+                            double cost = this.scoreCoverRegion2(1,1,params.src,params.dst,gjw.write(g))
                             iz.removalCost = ((cost - baseCost) / baseCost) * 100
                             iz.tier = 1
                             println("Base cost: " + baseCost)
