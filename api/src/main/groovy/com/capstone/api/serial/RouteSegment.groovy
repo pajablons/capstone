@@ -16,6 +16,9 @@ class RouteSegment {
     @Column(name="gid")
     int id
 
+    @Column(name="cost")
+    double cost
+
     @Column(name="the_geom")
     Geometry geom
 }

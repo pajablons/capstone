@@ -20,7 +20,12 @@ interface Weighted_Zone_Repository extends JpaRepository<Weighted_Zone, Integer>
     void deleteZone(@Param("id") int id)
 
     @Modifying
+    @Query(value = "DELETE FROM weighted_zones WHERE name = :name", nativeQuery = true)
+    @Transactional
+    void deleteZone(@Param("name") String name)
+
+    @Modifying
     @Query(value = "INSERT INTO weighted_zones (geom, name, profile_id, weight) VALUES (ST_GeomFromGeoJSON(:geojson), :name, :profile_id, :weight)", nativeQuery = true)
     @Transactional
-    void insert(@Param("geojson") String geojson, @Param("weight") int weight, @Param("name") String name, @Param("profile_id") int profile_id)
+    int insert(@Param("geojson") String geojson, @Param("weight") int weight, @Param("name") String name, @Param("profile_id") int profile_id)
 }

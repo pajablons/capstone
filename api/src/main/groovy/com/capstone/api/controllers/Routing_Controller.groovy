@@ -1,6 +1,8 @@
 package com.capstone.api.controllers
 
 import com.capstone.api.serial.GenCoverParams
+import com.capstone.api.serial.InterdictionZone
+import com.capstone.api.serial.RouteSegment
 import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Routing_Wayzone
 import com.capstone.api.service.DbUtilityService
@@ -38,7 +40,7 @@ class Routing_Controller {
     }
 
     @GetMapping("/getRoute")
-    List<LineSegment> getRoute(
+    List<RouteSegment> getRoute(
             @RequestParam("pid") int profile_id,
             @RequestParam("src") int src,
             @RequestParam("dst") int dst
@@ -46,14 +48,10 @@ class Routing_Controller {
         return this.routerService.generateRoute(profile_id, src, dst)
     }
 
-    double executeTrial(GenCoverParams params, Geometry envelope) {
-
-    }
-
     @PostMapping("/genCover")
-    List<SimpleFeature> genCover(
+    List<InterdictionZone> genCover(
             @RequestBody GenCoverParams params
     ) {
-        this.routerService.generateCoverRegions(params)
+        return this.routerService.generateCoverRegions(params)
     }
 }

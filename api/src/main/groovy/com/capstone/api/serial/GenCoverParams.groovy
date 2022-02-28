@@ -4,4 +4,6 @@ class GenCoverParams {
     int profile_id
     int trial_count
     String search_area_geojson
+    int src
+    int dst
 }
