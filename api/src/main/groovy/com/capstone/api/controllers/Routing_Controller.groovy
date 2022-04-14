@@ -42,9 +42,10 @@ class Routing_Controller {
     @GetMapping("/getRoute")
     List<RouteSegment> getRoute(
             @RequestParam("pid") int profile_id,
-            @RequestParam("src") int src,
-            @RequestParam("dst") int dst
+            @RequestParam("src") long src,
+            @RequestParam("dst") long dst
     ) {
+        println(src)
         return this.routerService.generateRoute(profile_id, src, dst)
     }
 

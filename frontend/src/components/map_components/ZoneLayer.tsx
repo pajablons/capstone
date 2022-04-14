@@ -15,7 +15,6 @@ import BaseEvent from "ol/events/Event";
 interface ZoneLayerProps {
     zIndex: number
     controlMode: ControlMode
-    locale: Locale
     modFnRegistry: (saveFn: () => void, discardFn: () => void) => void
 }
 
@@ -202,7 +201,6 @@ export default class ZoneLayer extends React.Component<ZoneLayerProps, ZoneLayer
                         return <WeightedZoneFeature
                             deletionFn={this.deleteZone.bind(this)}
                             key={feature.get('tmp_id')}
-                            locale={this.props.locale}
                             feature={feature}
                             controlMode={this.props.controlMode}
                         />
@@ -214,7 +212,6 @@ export default class ZoneLayer extends React.Component<ZoneLayerProps, ZoneLayer
                         return <WeightedZoneFeature
                             deletionFn={this.deleteZone.bind(this)}
                             key={feature.get('id')}
-                            locale={this.props.locale}
                             feature={feature}
                             controlMode={this.props.controlMode}
                         />

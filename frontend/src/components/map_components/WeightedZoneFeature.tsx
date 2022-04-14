@@ -4,11 +4,11 @@ import {Geometry} from "ol/geom";
 import {Feature} from "ol";
 import ControlMode from "../controls/ControlMode";
 import Locale from "../../localize/Locale";
+import AppContext from "../../AppContext";
 
 interface WeightedZoneFeatureProps {
     feature: Feature<Geometry>
     controlMode: ControlMode
-    locale: Locale
     deletionFn: (feature: Feature<Geometry>) => void
 }
 
@@ -16,6 +16,7 @@ interface WeightedZoneFeatureState {}
 
 export default class WeightedZoneFeature extends React.Component<WeightedZoneFeatureProps, WeightedZoneFeatureState> {
     langData: any
+    static contextType = AppContext
     constructor(props: WeightedZoneFeatureProps) {
         super(props);
         this.langData = require('../../localize/lang.json')
@@ -36,7 +37,7 @@ export default class WeightedZoneFeature extends React.Component<WeightedZoneFea
                 {this.props.controlMode.mode === "edit-param" &&
                     <RPopup className={'card'} trigger={"click"}>
                         <div className={'container'}>
-                            <p>{this.langData['featureData']['wz']['weight'][this.props.locale.lang]}: <input
+                            <p>{this.langData['featureData']['wz']['weight'][this.context.locale.lang]}: <input
                                 type={"text"}
                                 defaultValue={this.props.feature.get('weight')}
                                 name={"weight_input"}

@@ -8,20 +8,18 @@ import ZoneLayer from "./ZoneLayer";
 import {RView} from "rlayers/RMap";
 import {fromLonLat} from "ol/proj";
 import ControlMode from "../controls/ControlMode";
-import Locale from "../../localize/Locale";
+import InterdictionZoneLayer from "./InterdictionZoneLayer";
+import ControlFunction from "../../ControlFunction";
 
 interface MapPaneProps {
     waypoints: Array<Feature<Geometry>>
-    routeData: Array<Feature<Geometry>>
     controlMode: ControlMode
-    locale: Locale
     addWaypointFn: (evt: any) => void
     modFnRegistry: (saveFn: () => void, discardFn: () => void) => void
+    executorRegistryFn: (ident: ControlFunction, fn: () => void) => void
 }
 
-interface MapPaneState {
-
-}
+interface MapPaneState {}
 
 export default class MapPane extends React.Component<MapPaneProps, MapPaneState> {
     render() {
@@ -38,12 +36,25 @@ export default class MapPane extends React.Component<MapPaneProps, MapPaneState>
             >
                 <ROSM/>
 
-                <WaypointLayer waypoints={this.props.waypoints} zIndex={30} />
+                <WaypointLayer
+                    waypoints={this.props.waypoints}
+                    zIndex={30}
+                />
 
-                <RouteLayer routes={this.props.routeData} zIndex={20} />
+                <RouteLayer
+                    zIndex={20}
+                    executorRegistryFn={this.props.executorRegistryFn}
+                    waypoints={this.props.waypoints}
+                />
+
+                <InterdictionZoneLayer
+                    zIndex={15}
+                    controlMode={this.props.controlMode}
+                    executorRegistryFn={this.props.executorRegistryFn}
+                    waypoints={this.props.waypoints}
+                />
 
                 <ZoneLayer
-                    locale={this.props.locale}
                     controlMode={this.props.controlMode}
                     zIndex={10}
                     modFnRegistry={this.props.modFnRegistry}

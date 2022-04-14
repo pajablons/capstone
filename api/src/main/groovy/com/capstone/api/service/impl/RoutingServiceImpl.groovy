@@ -20,6 +20,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.io.WKBReader
 import org.locationtech.jts.io.geojson.GeoJsonWriter
+import org.locationtech.jts.operation.linemerge.LineMerger
 import org.opengis.feature.simple.SimpleFeature
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -43,21 +44,25 @@ class RoutingServiceImpl implements RoutingService {
     JdbcTemplate jdbcTemplate
 
     @Override
-    List<RouteSegment> generateRoute(int profile_id, int src, int dst) {
-        String sql = "select gid, cost, the_geom from ways where gid in (select edge from pgr_dijkstra('select pt.gid as id, pt.source as source, pt.target as target, (cost_s * -1) as reverse_cost, coalesce(cost_s + weight, cost_s) as cost from ways pt left join (select geom, weight from weighted_zones) py on ST_Intersects(py.geom, pt.the_geom) WHERE pt.the_geom && ST_Expand((SELECT ST_Collect(the_geom) FROM ways_vertices_pgr WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false))"
+    List<RouteSegment> generateRoute(int profile_id, long src, long dst) {
+        String sql = "select id, cost, geom_way from af_2po_4pgr where id in (select edge from pgr_dijkstra('select edge.id as id, edge.source as source, edge.target as target, coalesce(cost + weight, cost) as cost from ((select id as id, source as source, target as target, geom_way, cost from af_2po_4pgr) edge left join (select geom, weight from weighted_zones) zones on zones.geom && edge.geom_way) WHERE edge.geom_way && ST_Expand((SELECT ST_Collect(geom_vertex) FROM af_2po_vertex WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false))"
         sql = sql.replaceAll(':src', "" + src)
         sql = sql.replaceAll(':dst', "" + dst)
 
+        System.out.println("Going in")
+
         List<Map<String, Object>> obj = this.jdbcTemplate.queryForList(sql)
+        System.out.println("Coming out")
+        System.out.println(obj.size())
         List<RouteSegment> retn = new ArrayList<RouteSegment>()
         WKBReader reader = new WKBReader()
         for (Map<String,Object> row : obj) {
             RouteSegment seg = new RouteSegment()
             seg.cost = (double)(row.get('cost'))
-            String wkb = (String)(row.get('the_geom'))
+            String wkb = (String)(row.get('geom_way'))
             byte[] geom = WKBReader.hexToBytes(wkb)
             seg.geom = reader.read(geom)
-            seg.id = (int)(row.get('gid'))
+            seg.id = (int)(row.get('id'))
             retn.add(seg)
         }
         return retn
@@ -71,18 +76,18 @@ class RoutingServiceImpl implements RoutingService {
     double scoreCoverRegion2(
             int trials,
             int profile_id,
-            int src,
-            int dst,
+            long src,
+            long dst,
             String geometry
     ) {
         double totalScore = 0
         for (int i = 0; i < trials; i++) {
             println("Got here")
             if (geometry != "") {
-                this.weightedZoneRepository.insert(geometry, 100000, "tmp_delete_me", profile_id)
+                this.weightedZoneRepository.insert(geometry, 900000000, "tmp_delete_me", profile_id)
             }
 
-            String sql = "select agg_cost from pgr_dijkstraCost('select pt.gid as id, pt.source as source, pt.target as target, (cost_s * -1) as reverse_cost, coalesce(cost_s + weight, cost_s) as cost from ways pt left join (select geom, weight from weighted_zones) py on ST_Intersects(py.geom, pt.the_geom) WHERE pt.the_geom && ST_Expand((SELECT ST_Collect(the_geom) FROM ways_vertices_pgr WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false)"
+            String sql = "select agg_cost from pgr_dijkstraCost('select edge.id as id, edge.source as source, edge.target as target, coalesce(cost + weight, cost) as cost from ((select id as id, source as source, target as target, geom_way, cost from af_2po_4pgr) edge left join (select geom, weight from weighted_zones) zones on zones.geom && edge.geom_way) WHERE edge.geom_way && ST_Expand((SELECT ST_Collect(geom_vertex) FROM af_2po_vertex WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false)"
             sql = sql.replaceAll(':src', "" + src)
             sql = sql.replaceAll(':dst', "" + dst)
             double data = this.jdbcTemplate.queryForObject(sql, Double.class)
@@ -91,21 +96,6 @@ class RoutingServiceImpl implements RoutingService {
                 this.weightedZoneRepository.deleteZone("tmp_delete_me")
             }
             totalScore += data
-        }
-        return totalScore
-    }
-
-    double scoreCoverRegion(
-            int trials,
-            int profile_id,
-            int src,
-            int dst,
-            String geometry
-    ) {
-        double totalScore = 0
-        for (int i = 0; i < trials; i++) {
-            double result = this.route_repository.getRouteCost(src, dst)
-            totalScore += result
         }
         return totalScore
     }
@@ -125,6 +115,12 @@ class RoutingServiceImpl implements RoutingService {
         }
 
         List<RouteSegment> baseRoute = this.generateRoute(params.profile_id, params.src, params.dst)
+        LineMerger lm = new LineMerger()
+        for (RouteSegment rs : baseRoute) {
+            lm.add(rs.geom)
+        }
+        Collection merged = lm.getMergedLineStrings()
+
         double baseCost = this.scoreCoverRegion2(1, 1, params.src, params.dst, "")
         println("Base cost: " + baseCost)
 
@@ -165,8 +161,8 @@ class RoutingServiceImpl implements RoutingService {
                     // This is super inefficient.  Would be better to convert the RouteSegments to a linestring and call
                     // g.intersects once per grid square.
                     println("Base route: " + baseRoute.size())
-                    for (RouteSegment segment : baseRoute) {
-                        if (g.intersects(segment.geom)) {
+                    for (Geometry segment : merged) {
+                        if (g.intersects(segment)) {
                             InterdictionZone iz = new InterdictionZone()
                             g.setSRID(4326)
                             iz.gridSquare = g as Polygon

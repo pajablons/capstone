@@ -18,7 +18,7 @@ class Routing_Waypoint {
     @Column(name="id")
     long id
 
-    @Column(name = "the_geom")
+    @Column(name = "geom_vertex")
     Geometry geom
     void setGeom(Geometry geom) {
         this.geom = geom

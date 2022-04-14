@@ -3,15 +3,15 @@ import EditControlTable from "./EditControlTable";
 import Locale from "../../localize/Locale";
 import ControlMode from "./ControlMode";
 import ExecutionControlTable from "./ExecutionControlTable";
+import ControlFunction from "../../ControlFunction";
 
 export type ControlDisplayTier = "root" | "edit"
 
 interface ControlPanelProps {
-    locale: Locale
     controlModeFn: (mode: ControlMode) => void
-    genRtsFn: (evt: any) => void
     saveAllFn: () => void
     discardAllFn: () => void
+    commandExecutor: (ident: ControlFunction) => void
 }
 
 interface ControlPanelState {
@@ -37,18 +37,17 @@ export default class ControlPanel extends React.Component<ControlPanelProps, Con
         switch (this.state.displayTier) {
             case "edit":    return (
                 <EditControlTable
-                    locale={this.props.locale}
                     controlModeFn={this.props.controlModeFn}
                     controlPanelModeFn={this.setDisplayTier.bind(this)}
                     saveAllFn={this.props.saveAllFn}
                     discardAllFn={this.props.discardAllFn}
+                    controlExecutor={this.props.commandExecutor}
                 />
             )
             case "root":    return (
                 <ExecutionControlTable
-                    locale={this.props.locale}
                     controlPanelTierFn={this.setDisplayTier.bind(this)}
-                    genRouteFn={this.props.genRtsFn}
+                    controlExecutor={this.props.commandExecutor}
                 />
             )
         }

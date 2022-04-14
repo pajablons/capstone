@@ -16,6 +16,14 @@
       "en": "Predict Routes",
       "fr": "Prédire les Itinéraires"
     },
+    "set-search-area": {
+      "en": "Set Search Area",
+      "fr": "Définir la Zone de Recherche"
+    },
+    "clear-wp": {
+      "en": "Clear Waypoints",
+      "fr": "Effacer les Points de Chimenement"
+    },
     "save-edits": {
       "en": "Save Edits",
       "fr": "Enregistrer les Modifications"
@@ -31,6 +39,10 @@
     "end-edit-session": {
       "en": "End Edit Session",
       "fr": "Terminer la Session d'édition"
+    },
+    "interdict": {
+      "en": "Identify Interdiction Zones",
+      "fr": "Identifier Les Régions d'Interdiction"
     }
   },
   "featureData": {
@@ -43,8 +55,20 @@
   },
   "general": {
     "page_title": {
-      "en": "Interdiction Simulator",
+      "en": "Interdiction Optimizer",
       "fr": "Simulateur d'Interdiction"
+    },
+    "please_wait": {
+      "en": "... Please Wait.",
+      "fr": "... S'il vous plaît, Attendez"
+    },
+    "loading_iz": {
+      "en": "Loading interdiction zones",
+      "fr": "Création de zones d'interdiction"
+    },
+    "ready_state": {
+      "en": "Ready for execution",
+      "fr": "En attente d'exécution"
     }
   }
 }
