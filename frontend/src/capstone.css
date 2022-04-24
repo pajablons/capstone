@@ -48,9 +48,18 @@
     padding: 5px;
 }
 
+.view-container {
+    grid-row: 3;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+    background-color: white;
+    border-radius: 15px;
+    overflow: hidden;
+    padding: 5px;
+}
+
 .top-layout {
     display: grid;
-    background-image: linear-gradient(#f4d03f, #16a085);
+    background-image: url("../public/dust.png");
     grid-template-rows: 90px 1fr;
     grid-gap: 10px;
     padding-left: 15px;
@@ -70,6 +79,21 @@ h1 {
 .banner-heading {
     grid-column: 1;
     height: 100px
+}
+
+.my-node-enter {
+     opacity: 0;
+ }
+.my-node-enter-active {
+    opacity: 1;
+    transition: opacity 500ms;
+}
+.my-node-exit {
+    opacity: 1;
+}
+.my-node-exit-active {
+    opacity: 0;
+    transition: opacity 0ms;
 }
 
 .banner {

@@ -4,6 +4,7 @@ import org.locationtech.jts.geom.Polygon
 
 class InterdictionZone {
     Polygon gridSquare
+    Route associatedRoute
     double removalCost
     int tier
 }

@@ -38,10 +38,8 @@ export default class RouteLayer extends React.Component<RouteLayerProps, RouteLa
         let dst = this.props.waypoints[1]
         const newRoutes = new Array<Feature<Geometry>>()
         axios.get(`/api/routing/getRoute?pid=${1}&src=${src.get('id')}&dst=${dst.get('id')}`).then((response) => {
-            response.data.forEach((feature: any) => {
+            response.data['segments'].forEach((feature: any) => {
                 newRoutes.push(new Feature<Geometry>({id: feature['id'], cost: feature['cost'], geometry: new MultiLineString(feature.geom['coordinates']).transform("EPSG:4326", "EPSG:3857")}))
-                let g = new MultiLineString(feature.geom['coordinates'])
-                let l = g.transform("EPSG:4326", "EPSG:3857")
                 console.log("Added a feature")
             })
             this.setState({routes: [...newRoutes]})

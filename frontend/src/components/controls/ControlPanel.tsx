@@ -4,6 +4,7 @@ import Locale from "../../localize/Locale";
 import ControlMode from "./ControlMode";
 import ExecutionControlTable from "./ExecutionControlTable";
 import ControlFunction from "../../ControlFunction";
+import {CSSTransition, TransitionGroup} from "react-transition-group";
 
 export type ControlDisplayTier = "root" | "edit"
 
@@ -34,22 +35,29 @@ export default class ControlPanel extends React.Component<ControlPanelProps, Con
     }
 
     render() {
-        switch (this.state.displayTier) {
-            case "edit":    return (
-                <EditControlTable
-                    controlModeFn={this.props.controlModeFn}
-                    controlPanelModeFn={this.setDisplayTier.bind(this)}
-                    saveAllFn={this.props.saveAllFn}
-                    discardAllFn={this.props.discardAllFn}
-                    controlExecutor={this.props.commandExecutor}
-                />
-            )
-            case "root":    return (
-                <ExecutionControlTable
-                    controlPanelTierFn={this.setDisplayTier.bind(this)}
-                    controlExecutor={this.props.commandExecutor}
-                />
-            )
-        }
+        return (
+            <React.Fragment>
+                <CSSTransition in={this.state.displayTier === "edit"} classNames={"my-node"} unmountOnExit={true} timeout={500}>
+                    <div>
+                        <EditControlTable
+                            controlModeFn={this.props.controlModeFn}
+                            controlPanelModeFn={this.setDisplayTier.bind(this)}
+                            saveAllFn={this.props.saveAllFn}
+                            discardAllFn={this.props.discardAllFn}
+                            controlExecutor={this.props.commandExecutor}
+                        />
+                    </div>
+                </CSSTransition>
+
+                <CSSTransition in={this.state.displayTier === "root"} classNames={"my-node"} unmountOnExit={true} timeout={500}>
+                    <div>
+                        <ExecutionControlTable
+                            controlPanelTierFn={this.setDisplayTier.bind(this)}
+                            controlExecutor={this.props.commandExecutor}
+                        />
+                    </div>
+                </CSSTransition>
+            </React.Fragment>
+        )
     }
 }

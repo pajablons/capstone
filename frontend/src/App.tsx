@@ -14,6 +14,7 @@ import ControlFunction from "./ControlFunction";
 import ServerRequestState, {RequestState, RequestType} from "./ServerRequestState";
 import StatusDisplay from "./components/StatusDisplay";
 import {ContextProvider} from "./AppContext";
+import EditZoneView from "./components/context_panes/EditZoneView";
 
 interface AppProps {
 }
@@ -136,6 +137,9 @@ export default class App extends React.Component<AppProps, AppState> {
                                 </div>
                                 <div className={"status-container"}>
                                     <StatusDisplay status={this.state.requestState} />
+                                </div>
+                                <div className={"view-container"}>
+                                    <EditZoneView />
                                 </div>
                             </div>
                         </div>

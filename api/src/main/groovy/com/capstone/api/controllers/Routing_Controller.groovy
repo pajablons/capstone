@@ -2,6 +2,7 @@ package com.capstone.api.controllers
 
 import com.capstone.api.serial.GenCoverParams
 import com.capstone.api.serial.InterdictionZone
+import com.capstone.api.serial.Route
 import com.capstone.api.serial.RouteSegment
 import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Routing_Wayzone
@@ -40,7 +41,7 @@ class Routing_Controller {
     }
 
     @GetMapping("/getRoute")
-    List<RouteSegment> getRoute(
+    Route getRoute(
             @RequestParam("pid") int profile_id,
             @RequestParam("src") long src,
             @RequestParam("dst") long dst
