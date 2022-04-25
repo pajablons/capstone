@@ -3,10 +3,12 @@ import Locale from "../../localize/Locale";
 import {ControlDisplayTier} from "./ControlPanel";
 import ControlFunction from "../../ControlFunction";
 import AppContext from "../../AppContext";
+import API_Engine from "../../api/API_Engine";
+import {Geometry} from "ol/geom";
+import {Feature} from "ol";
 
 interface ExecutionControlTableProps {
     controlPanelTierFn: (tier: ControlDisplayTier) => void
-    controlExecutor: (ident: ControlFunction) => void
 }
 
 interface ExecutionControlTableState {}
@@ -29,14 +31,14 @@ export default class ExecutionControlTable extends React.Component<ExecutionCont
     }
 
     findInterdictionZones(evt: any) {
-        this.props.controlExecutor({
-            identity: "interdict"
+        API_Engine.loadIZL(this.context.searchArea, this.context.waypoints).then((value: Array<Feature<Geometry>>) => {
+            this.context.setInterdictionZones(value)
         })
     }
 
     genRoutes(evt: any) {
-        this.props.controlExecutor({
-            identity: "gen-rts"
+        API_Engine.generateRoute(this.context.waypoints).then((routes: Array<Feature<Geometry>>) => {
+            this.context.setRoutes(routes)
         })
     }
 

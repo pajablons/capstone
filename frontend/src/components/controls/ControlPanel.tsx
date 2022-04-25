@@ -5,14 +5,11 @@ import ControlMode from "./ControlMode";
 import ExecutionControlTable from "./ExecutionControlTable";
 import ControlFunction from "../../ControlFunction";
 import {CSSTransition, TransitionGroup} from "react-transition-group";
+import AppContext from "../../AppContext";
 
 export type ControlDisplayTier = "root" | "edit"
 
 interface ControlPanelProps {
-    controlModeFn: (mode: ControlMode) => void
-    saveAllFn: () => void
-    discardAllFn: () => void
-    commandExecutor: (ident: ControlFunction) => void
 }
 
 interface ControlPanelState {
@@ -20,6 +17,7 @@ interface ControlPanelState {
 }
 
 export default class ControlPanel extends React.Component<ControlPanelProps, ControlPanelState> {
+    static contextType = AppContext
     constructor(props: ControlPanelProps) {
         super(props);
         this.state = {
@@ -40,11 +38,7 @@ export default class ControlPanel extends React.Component<ControlPanelProps, Con
                 <CSSTransition in={this.state.displayTier === "edit"} classNames={"my-node"} unmountOnExit={true} timeout={500}>
                     <div>
                         <EditControlTable
-                            controlModeFn={this.props.controlModeFn}
                             controlPanelModeFn={this.setDisplayTier.bind(this)}
-                            saveAllFn={this.props.saveAllFn}
-                            discardAllFn={this.props.discardAllFn}
-                            controlExecutor={this.props.commandExecutor}
                         />
                     </div>
                 </CSSTransition>
@@ -53,7 +47,6 @@ export default class ControlPanel extends React.Component<ControlPanelProps, Con
                     <div>
                         <ExecutionControlTable
                             controlPanelTierFn={this.setDisplayTier.bind(this)}
-                            controlExecutor={this.props.commandExecutor}
                         />
                     </div>
                 </CSSTransition>

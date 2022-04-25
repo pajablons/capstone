@@ -1,6 +1,6 @@
 import React from "react";
 import {Feature} from "ol";
-import {Geometry} from "ol/geom";
+import {Geometry, Point} from "ol/geom";
 import {RMap, ROSM} from "rlayers";
 import WaypointLayer from "./WaypointLayer";
 import RouteLayer from "./RouteLayer";
@@ -10,18 +10,32 @@ import {fromLonLat} from "ol/proj";
 import ControlMode from "../controls/ControlMode";
 import InterdictionZoneLayer from "./InterdictionZoneLayer";
 import ControlFunction from "../../ControlFunction";
+import axios from "axios";
+import Waypoint from "../../datatypes/Waypoint";
+import AppContext from "../../AppContext";
 
 interface MapPaneProps {
-    waypoints: Array<Feature<Geometry>>
-    controlMode: ControlMode
-    addWaypointFn: (evt: any) => void
-    modFnRegistry: (saveFn: () => void, discardFn: () => void) => void
-    executorRegistryFn: (ident: ControlFunction, fn: () => void) => void
+
 }
 
 interface MapPaneState {}
 
 export default class MapPane extends React.Component<MapPaneProps, MapPaneState> {
+    static contextType = AppContext
+
+    addWaypoint(e: any) {
+        if (this.context.controlMode.mode != "edit-wp") {
+            return
+        }
+        const coords = (e as any).map.getCoordinateFromPixel(e.pixel)
+        let temp_point = new Point(coords).transform("EPSG:3857","EPSG:4326") as Point
+        axios.get(`/api/routing/util/nearestPoint?lng=${temp_point.getCoordinates()[0]}&lat=${temp_point.getCoordinates()[1]}`).then((response => {
+            console.log(response)
+            let wp = new Waypoint(response.data.geom['coordinates'], "4326", response.data['id'])
+            this.context.addWaypoint(wp)
+        }))
+    }
+
     render() {
         let initialView: RView = {
             center: fromLonLat([15.297, -4.371]),
@@ -32,32 +46,24 @@ export default class MapPane extends React.Component<MapPaneProps, MapPaneState>
             <RMap
                 className='example-map'
                 initial={initialView}
-                onClick={this.props.addWaypointFn}
+                onClick={this.addWaypoint.bind(this)}
             >
                 <ROSM/>
 
                 <WaypointLayer
-                    waypoints={this.props.waypoints}
                     zIndex={30}
                 />
 
                 <RouteLayer
                     zIndex={20}
-                    executorRegistryFn={this.props.executorRegistryFn}
-                    waypoints={this.props.waypoints}
                 />
 
                 <InterdictionZoneLayer
                     zIndex={15}
-                    controlMode={this.props.controlMode}
-                    executorRegistryFn={this.props.executorRegistryFn}
-                    waypoints={this.props.waypoints}
                 />
 
                 <ZoneLayer
-                    controlMode={this.props.controlMode}
                     zIndex={10}
-                    modFnRegistry={this.props.modFnRegistry}
                 />
             </RMap>
         )

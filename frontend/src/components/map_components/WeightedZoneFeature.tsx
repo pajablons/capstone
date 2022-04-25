@@ -8,7 +8,6 @@ import AppContext from "../../AppContext";
 
 interface WeightedZoneFeatureProps {
     feature: Feature<Geometry>
-    controlMode: ControlMode
     deletionFn: (feature: Feature<Geometry>) => void
 }
 
@@ -23,7 +22,7 @@ export default class WeightedZoneFeature extends React.Component<WeightedZoneFea
     }
 
     deleteSelf() {
-        if (this.props.controlMode.mode === "edit-wz") {
+        if (this.context.controlMode.mode === "edit-wz") {
             this.props.deletionFn(this.props.feature)
         }
     }
@@ -34,14 +33,13 @@ export default class WeightedZoneFeature extends React.Component<WeightedZoneFea
                 feature={this.props.feature}
                 onDblClick={this.deleteSelf.bind(this)}
             >
-                {this.props.controlMode.mode === "edit-param" &&
+                {this.context.controlMode.mode === "edit-param" &&
                     <RPopup className={'card'} trigger={"click"}>
                         <div className={'container'}>
                             <p>{this.langData['featureData']['wz']['weight'][this.context.locale.lang]}: <input
                                 type={"text"}
                                 defaultValue={this.props.feature.get('weight')}
                                 name={"weight_input"}
-                                //onBlur={this.props.updateWeightFn}
                                 zone-id={this.props.feature.get('id')}
                             /></p>
                         </div>
