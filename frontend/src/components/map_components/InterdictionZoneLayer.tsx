@@ -52,10 +52,9 @@ export default class InterdictionZoneLayer extends React.Component<InterdictionZ
     render() {
         return (
             <React.Fragment>
-                {this.state.altRoute != null &&
+                {!!this.context.selectedIZ &&
                     <RLayerVector zIndex={this.props.zIndex}>
-                        {this.context.izl[this.state.altRoute].get('route').map((feature: any) => {
-                            console.log("Rendered a feature")
+                        {this.context.izl[this.context.selectedIZ].get('route').map((feature: any) => {
                             let seg = new Feature<Geometry>({id: feature['id'], cost: feature['cost'], geometry: new MultiLineString(feature.geom['coordinates']).transform("EPSG:4326", "EPSG:3857")})
                             return <RFeature
                                 key={seg.get('id')}
@@ -103,6 +102,15 @@ export default class InterdictionZoneLayer extends React.Component<InterdictionZ
                             </RFeature>
                         )
                     })}
+
+                    <RStyle.RStyle render={(feature) => {
+                        console.log(this.context.selectedIZ === feature.get('id'))
+                        return (
+                            <RStyle.RFill
+                                color={feature.get('id') === this.context.selectedIZ ? `rgba(0, 0, 0, 0.8)` : `rgba(200, 200, 0, 0.25)`}
+                            />
+                        )
+                    }} />
                 </RLayerVector>
             </React.Fragment>
         )

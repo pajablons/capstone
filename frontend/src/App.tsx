@@ -16,6 +16,7 @@ import StatusDisplay from "./components/StatusDisplay";
 import AppContext, {ContextProvider} from "./AppContext";
 import EditZoneView from "./components/context_panes/EditZoneView";
 import Waypoint from "./datatypes/Waypoint";
+import InterdictionZoneView from "./components/context_panes/InterdictionZoneView";
 
 interface AppProps {
 }
@@ -51,7 +52,8 @@ export default class App extends React.Component<AppProps, AppState> {
                                     <ControlPanel />
                                 </div>
                                 <div className={"status-container"}>
-                                    <StatusDisplay />
+                                    {/*<StatusDisplay />*/}
+                                    <InterdictionZoneView />
                                 </div>
                                 <div className={"view-container"}>
                                     <EditZoneView />

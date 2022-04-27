@@ -22,6 +22,7 @@ interface AppContextState {
     deletedZones: Array<WeightedZoneStore>
     zones: Map<number, WeightedZoneStore>
     searchArea: Array<Feature<Geometry>>
+    selectedIZ: number | undefined
 }
 
 export class ContextProvider extends Component {
@@ -41,6 +42,7 @@ export class ContextProvider extends Component {
         deletedZones: new Array<WeightedZoneStore>(),
         zones: new Map<number, WeightedZoneStore>(),
         searchArea: Array<Feature<Geometry>>(),
+        selectedIZ: undefined,
     }
 
     setRoutes(routes: Array<Feature<Geometry>>) {
@@ -104,6 +106,13 @@ export class ContextProvider extends Component {
         })
     }
 
+    selectIZ(iz: number) {
+        console.log(`New iz: ${iz}`)
+        this.setState({
+            selectedIZ: iz
+        })
+    }
+
     render() {
         return(
             <AppContext.Provider value={
@@ -133,6 +142,8 @@ export class ContextProvider extends Component {
                     setInterdictionZones: this.setIZL.bind(this),
                     searchArea: this.state.searchArea,
                     setSearchArea: this.setSearchArea.bind(this),
+                    selectedIZ: this.state.selectedIZ,
+                    selectIZ: this.selectIZ.bind(this),
 
                     // Weighted Zones //
                     addedZones: this.state.addedZones,

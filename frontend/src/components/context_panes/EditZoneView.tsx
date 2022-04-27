@@ -25,22 +25,26 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
                 <tr key={zone.id}>
                     <td>{zone.id}</td>
                     <td><input defaultValue={zone.weight} /></td>
+                    <td><input defaultValue={zone.name} /></td>
                 </tr>
             )
         })
 
         return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Weight</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {zoneRows}
-                </tbody>
-            </table>
+            <div style={{overflow: "scroll"}}>
+                <table className={"editTable"}>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Weight</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {zoneRows}
+                    </tbody>
+                </table>
+            </div>
         )
     }
 }
