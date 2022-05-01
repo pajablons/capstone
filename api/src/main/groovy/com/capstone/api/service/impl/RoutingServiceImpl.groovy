@@ -11,6 +11,7 @@ import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Routing_Wayzone
 import com.capstone.api.service.DbUtilityService
 import com.capstone.api.service.RoutingService
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.geotools.data.simple.SimpleFeatureIterator
 import org.geotools.data.simple.SimpleFeatureSource
 import org.geotools.geojson.geom.GeometryJSON
@@ -72,11 +73,6 @@ class RoutingServiceImpl implements RoutingService {
         return container
     }
 
-    @Override
-    List<Routing_Wayzone> getWayzones(int profile_id, boolean source) {
-        return this.wayzone_repo.retrieveZonesByProfile(profile_id, source)
-    }
-
     Route scoreCoverRegion2(
             int trials,
             int profile_id,
@@ -102,18 +98,6 @@ class RoutingServiceImpl implements RoutingService {
 
     @Override
     List<InterdictionZone> generateCoverRegions(GenCoverParams params) {
-        List<Routing_Wayzone> sources = this.getWayzones(params.profile_id, true)
-        List<Routing_Wayzone> targets = this.getWayzones(params.profile_id, false)
-
-        List<Routing_Waypoint> sourcePoints = new ArrayList<Routing_Waypoint>()
-        List<Routing_Waypoint> targetPoints = new ArrayList<Routing_Waypoint>()
-        for (Routing_Wayzone wz : sources) {
-            sourcePoints.addAll(this.dbService.getWithin(wz))
-        }
-        for (Routing_Wayzone wz : targets) {
-            targetPoints.addAll(this.dbService.getWithin(wz))
-        }
-
         Route baseRoute = this.generateRoute(params.profile_id, params.src, params.dst)
         LineMerger lm = new LineMerger()
         for (RouteSegment rs : baseRoute.segments) {
@@ -141,10 +125,14 @@ class RoutingServiceImpl implements RoutingService {
         for (int t = 0; t < tiers; t++) {
             println("Tier: " + t)
             List<InterdictionZone> coverRegions = new ArrayList<InterdictionZone>()
-            for (InterdictionZone aoi : tierTree.get(t)) {
+            for (int k = 0; k < Math.min(tierTree.get(t).size(), 10); k++) {
+                InterdictionZone aoi = tierTree.get(t).get(k)
                 println("Reached an AOI")
                 Geometry envelope = aoi.gridSquare.getEnvelope()
-                SimpleFeatureSource grid = Grids.createSquareGrid(new ReferencedEnvelope(envelope.getEnvelopeInternal(), CRS.decode("EPSG:3857")), (0.1 / Math.pow(2, t))-0.0001)
+                if (t == 0) {
+                    envelope = envelope.buffer(0.2)
+                }
+                SimpleFeatureSource grid = Grids.createSquareGrid(new ReferencedEnvelope(envelope.getEnvelopeInternal(), CRS.decode("EPSG:3857")), /*(0.1 / Math.pow(2, t))-0.0001*/ aoi.gridSquare.getEnvelope().getEnvelopeInternal().width / 3)
 
                 SimpleFeatureIterator itr = grid.getFeatures().features()
                 println(grid.getFeatures().size())
@@ -165,12 +153,17 @@ class RoutingServiceImpl implements RoutingService {
                         if (g.intersects(segment)) {
                             InterdictionZone iz = new InterdictionZone()
                             g.setSRID(4326)
-                            iz.gridSquare = g as Polygon
+                            try {
+                                iz.gridSquare = g as Polygon
+                            } catch(GroovyCastException gce) {
+                                continue
+                            }
                             //double cost = this.scoreCoverRegion(1, 1, params.src, params.dst, gjw.write(g))
                             Route opt = this.scoreCoverRegion2(1,1,params.src,params.dst,gjw.write(g))
                             double cost = opt.totalCost
                             iz.removalCost = cost - baseCost
                             iz.tier = t
+                            iz.baseCost = baseCost
                             iz.associatedRoute = opt
                             println("Base cost: " + baseCost)
                             println("Removal Cost: " + iz.removalCost)
@@ -194,13 +187,12 @@ class RoutingServiceImpl implements RoutingService {
                 })
             }
             println(coverRegions.size())
-            tierTree.put(t+1, coverRegions.subList(0, Math.min(coverRegions.size(), 10) as int))
+            tierTree.put(t+1, coverRegions)
         }
         List<InterdictionZone> retn = new ArrayList<InterdictionZone>()
         for (int i = 1; i <= tiers; i++) {
             retn.addAll(tierTree.get(i))
         }
-        //return tierTree.get(tiers)
         return retn
     }
 }

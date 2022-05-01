@@ -45,15 +45,25 @@ export default class InterdictionZoneLayer extends React.Component<InterdictionZ
         }
     }
 
+    selectZone(evt: any) {
+        this.context.selectIZ(evt.target?.get('id'))
+    }
+
     viewAltRoute(evt: any) {
         this.setState({altRoute: evt.target.value})
     }
 
     render() {
+        let maxIncrease = 0
+        this.context.izl.forEach((feat: Feature<Geometry>) => {
+            if (maxIncrease < feat.get('removalCost')) {
+                maxIncrease = feat.get('removalCost')
+            }
+        })
         return (
             <React.Fragment>
                 {!!this.context.selectedIZ &&
-                    <RLayerVector zIndex={this.props.zIndex}>
+                    <RLayerVector zIndex={this.props.zIndex + 4}>
                         {this.context.izl[this.context.selectedIZ].get('route').map((feature: any) => {
                             let seg = new Feature<Geometry>({id: feature['id'], cost: feature['cost'], geometry: new MultiLineString(feature.geom['coordinates']).transform("EPSG:4326", "EPSG:3857")})
                             return <RFeature
@@ -90,24 +100,21 @@ export default class InterdictionZoneLayer extends React.Component<InterdictionZ
                 </RLayerVector>
 
                 <RLayerVector zIndex={this.props.zIndex}>
-                    {this.context.izl.map((feature: Feature<Geometry>) => {
+                    {this.context.izl.filter((value: Feature<Geometry>) => {
+                        return value.get('tier') == this.context.selectedTier
+                    }).map((feature: Feature<Geometry>) => {
                         return (
-                            <RFeature feature={feature} key={feature.get('id')}>
-                                <RPopup className={'card'} trigger={'click'}>
-                                    <div className={"container"}>
-                                        <p>{feature.get('removalCost')}</p>
-                                        <button value={feature.get('id')} onClick={this.viewAltRoute.bind(this)}>View Route</button>
-                                    </div>
-                                </RPopup>
-                            </RFeature>
+                            <RFeature onClick={this.selectZone.bind(this)} feature={feature} key={feature.get('id')} />
                         )
                     })}
 
                     <RStyle.RStyle render={(feature) => {
                         console.log(this.context.selectedIZ === feature.get('id'))
+                        let offset = feature.get('removalCost') / maxIncrease
+
                         return (
                             <RStyle.RFill
-                                color={feature.get('id') === this.context.selectedIZ ? `rgba(0, 0, 0, 0.8)` : `rgba(200, 200, 0, 0.25)`}
+                                color={feature.get('id') === this.context.selectedIZ ? `rgba(0, 0, 100, 0.8)` : `rgba(${250 - ((250 * offset) / 1.1)}, ${250 * offset}, 0, 0.5)`}
                             />
                         )
                     }} />

@@ -1,7 +1,7 @@
 import React from "react";
 import {Feature} from "ol";
 import {Geometry, Point} from "ol/geom";
-import {RMap, ROSM} from "rlayers";
+import {RMap, ROSM, ROSMWebGL} from "rlayers";
 import WaypointLayer from "./WaypointLayer";
 import RouteLayer from "./RouteLayer";
 import ZoneLayer from "./ZoneLayer";
@@ -13,6 +13,7 @@ import ControlFunction from "../../ControlFunction";
 import axios from "axios";
 import Waypoint from "../../datatypes/Waypoint";
 import AppContext from "../../AppContext";
+import {RDoubleClickZoom, RDragPan, RMouseWheelZoom} from "rlayers/interaction";
 
 interface MapPaneProps {
 
@@ -29,7 +30,7 @@ export default class MapPane extends React.Component<MapPaneProps, MapPaneState>
         }
         const coords = (e as any).map.getCoordinateFromPixel(e.pixel)
         let temp_point = new Point(coords).transform("EPSG:3857","EPSG:4326") as Point
-        axios.get(`/api/routing/util/nearestPoint?lng=${temp_point.getCoordinates()[0]}&lat=${temp_point.getCoordinates()[1]}`).then((response => {
+        axios.get(`/api/laydown/util/nearestPoint?lng=${temp_point.getCoordinates()[0]}&lat=${temp_point.getCoordinates()[1]}`).then((response => {
             console.log(response)
             let wp = new Waypoint(response.data.geom['coordinates'], "4326", response.data['id'])
             this.context.addWaypoint(wp)
@@ -47,8 +48,12 @@ export default class MapPane extends React.Component<MapPaneProps, MapPaneState>
                 className='example-map'
                 initial={initialView}
                 onClick={this.addWaypoint.bind(this)}
+                noDefaultInteractions={true}
             >
-                <ROSM/>
+                <ROSMWebGL/>
+
+                <RDragPan />
+                <RMouseWheelZoom />
 
                 <WaypointLayer
                     zIndex={30}

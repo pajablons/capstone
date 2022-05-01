@@ -1,7 +1,10 @@
 package com.capstone.api.controllers
 
+import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Weighted_Zone
+import com.capstone.api.service.DbUtilityService
 import com.capstone.api.service.UserLaydownService
+import com.capstone.api.util.PgPoint
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,6 +19,9 @@ class Laydown_Controller {
     @Autowired
     private UserLaydownService laydownService
 
+    @Autowired
+    private DbUtilityService dbService
+
     @GetMapping("/retr/weightzones")
     List<Weighted_Zone> getWeightedZones(@RequestParam("pid") int profile_id) {
         List<Weighted_Zone> zones = laydownService.retrieveByProfileId(profile_id)
@@ -24,6 +30,25 @@ class Laydown_Controller {
         }
 
         return zones
+    }
+
+    @GetMapping("/util/nearestPoint")
+    Routing_Waypoint addNearestPoint(@RequestParam("lng") double lng, @RequestParam("lat") double lat) {
+        PgPoint target = new PgPoint(lng, lat)
+        println(target.toString())
+        Routing_Waypoint rp = this.dbService.getNearestPoint(target)
+        this.laydownService.insertWaypoint(rp.id as int, 1)
+        return rp
+    }
+
+    @GetMapping("/points/remove")
+    void removePoint(@RequestParam("prof_id") int profile_id, @RequestParam("point_id") int point_id) {
+        this.laydownService.removeWaypoint(point_id, profile_id)
+    }
+
+    @GetMapping("/points/all")
+    List<Routing_Waypoint> getWaypointsByProfile(@RequestParam("profile") int profile_id) {
+        return this.laydownService.getWaypoints(profile_id)
     }
 
     @PostMapping("/add/weightzones")

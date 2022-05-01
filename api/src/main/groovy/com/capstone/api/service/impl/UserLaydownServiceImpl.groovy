@@ -1,7 +1,9 @@
 package com.capstone.api.service.impl
 
+import com.capstone.api.repository.Routing_Waypoint_Repo
 import com.capstone.api.repository.Routing_Wayzone_Repo
 import com.capstone.api.repository.Weighted_Zone_Repository
+import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Routing_Wayzone
 import com.capstone.api.serial.Weighted_Zone
 import com.capstone.api.service.UserLaydownService
@@ -14,7 +16,7 @@ class UserLaydownServiceImpl implements UserLaydownService {
     private Weighted_Zone_Repository zoneRepository
 
     @Autowired
-    private Routing_Wayzone_Repo route_zone_repo
+    private Routing_Waypoint_Repo wp_repo
 
     @Override
     List<Weighted_Zone> retrieveByProfileId(int profile_id) {
@@ -48,9 +50,17 @@ class UserLaydownServiceImpl implements UserLaydownService {
     }
 
     @Override
-    void insertRoutingWayzones(List<Routing_Wayzone> rwl) {
-        for (Routing_Wayzone rw : rwl) {
-            this.route_zone_repo.insertZone(rw.geojson, rw.point_count, rw.name, rw.profile_id, rw.is_source)
-        }
+    void insertWaypoint(int point_id, int profile_id) {
+        this.wp_repo.insertPoint(point_id, "", profile_id)
+    }
+
+    @Override
+    List<Routing_Waypoint> getWaypoints(int profile_id) {
+        return this.wp_repo.retrievePointsByProfile(profile_id)
+    }
+
+    @Override
+    void removeWaypoint(int point_id, int profile_id) {
+        this.wp_repo.deletePoint(point_id, profile_id)
     }
 }

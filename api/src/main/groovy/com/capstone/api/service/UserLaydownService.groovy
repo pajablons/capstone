@@ -1,6 +1,6 @@
 package com.capstone.api.service
 
-import com.capstone.api.serial.Routing_Wayzone
+import com.capstone.api.serial.Routing_Waypoint
 import com.capstone.api.serial.Weighted_Zone
 
 interface UserLaydownService {
@@ -9,5 +9,7 @@ interface UserLaydownService {
     void insertWeightedZones(List<Weighted_Zone> wz);
     void deleteZone(Weighted_Zone wz)
     void deleteZones(List<Weighted_Zone> wzl)
-    void insertRoutingWayzones(List<Routing_Wayzone> rw)
+    void insertWaypoint(int point_id, int profile_id)
+    List<Routing_Waypoint> getWaypoints(int profile_id)
+    void removeWaypoint(int point_id, int profile_id)
 }

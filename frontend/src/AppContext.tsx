@@ -12,7 +12,7 @@ const AppContext = React.createContext({})
 
 interface AppContextState {
     locale: Locale
-    waypoints: Array<Waypoint>
+    waypoints: Array<Waypoint> // Change this to a map!!
     routes: Array<Feature<Geometry>>
     wp_connections: Array<Waypoint_Link>
     controlMode: ControlMode
@@ -23,6 +23,7 @@ interface AppContextState {
     zones: Map<number, WeightedZoneStore>
     searchArea: Array<Feature<Geometry>>
     selectedIZ: number | undefined
+    selectedTier: number | undefined
 }
 
 export class ContextProvider extends Component {
@@ -43,11 +44,20 @@ export class ContextProvider extends Component {
         zones: new Map<number, WeightedZoneStore>(),
         searchArea: Array<Feature<Geometry>>(),
         selectedIZ: undefined,
+        selectedTier: undefined,
     }
 
     setRoutes(routes: Array<Feature<Geometry>>) {
         this.setState({
             routes: routes
+        })
+    }
+
+    addEdge(edge: Waypoint_Link) {
+        let newEdges = this.state.wp_connections
+        newEdges.push(edge)
+        this.setState({
+            wp_connections: [...newEdges]
         })
     }
 
@@ -59,6 +69,15 @@ export class ContextProvider extends Component {
         this.state.waypoints.push(wp)
         this.setState({
             waypoints: [...this.state.waypoints]
+        })
+    }
+
+    deleteWaypoint(id: number) {
+        const ways = this.state.waypoints.filter((value) => {
+            return value.id != id
+        })
+        this.setState({
+            waypoints: ways
         })
     }
 
@@ -106,6 +125,12 @@ export class ContextProvider extends Component {
         })
     }
 
+    setSelectedTier(tier: number | undefined) {
+        this.setState({
+            selectedTier: tier
+        })
+    }
+
     selectIZ(iz: number) {
         console.log(`New iz: ${iz}`)
         this.setState({
@@ -124,6 +149,7 @@ export class ContextProvider extends Component {
                     // Waypoints //
                     waypoints: this.state.waypoints,
                     addWaypoint: this.addWaypoint.bind(this),
+                    removeWaypoint: this.deleteWaypoint.bind(this),
                     clearWaypoints: this.clearWaypoints.bind(this),
 
                     // Control mode //
@@ -133,6 +159,10 @@ export class ContextProvider extends Component {
                     // Routes //
                     routes: this.state.routes,
                     setRoutes: this.setRoutes.bind(this),
+
+                    // Edges //
+                    addEdge: this.addEdge.bind(this),
+                    edges: this.state.wp_connections,
 
                     // Application Status //
                     status: this.state.status,
@@ -144,6 +174,8 @@ export class ContextProvider extends Component {
                     setSearchArea: this.setSearchArea.bind(this),
                     selectedIZ: this.state.selectedIZ,
                     selectIZ: this.selectIZ.bind(this),
+                    selectedTier: this.state.selectedTier,
+                    setSelectedIZTier: this.setSelectedTier.bind(this),
 
                     // Weighted Zones //
                     addedZones: this.state.addedZones,

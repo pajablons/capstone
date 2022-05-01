@@ -27,18 +27,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/routing")
 class Routing_Controller {
-    @Autowired
-    private DbUtilityService dbService
 
     @Autowired
     private RoutingService routerService
-
-    @GetMapping("/util/nearestPoint")
-    Routing_Waypoint getNearestPoint(@RequestParam("lng") double lng, @RequestParam("lat") double lat) {
-        PgPoint target = new PgPoint(lng, lat)
-        println(target.toString())
-        return this.dbService.getNearestPoint(target)
-    }
 
     @GetMapping("/getRoute")
     Route getRoute(

@@ -6,5 +6,6 @@ class InterdictionZone {
     Polygon gridSquare
     Route associatedRoute
     double removalCost
+    double baseCost
     int tier
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import './style.css'
 import 'ol/ol.css'
+import 'react-tabs/style/react-tabs.css'
 import {Feature} from "ol";
 import {Geometry, Point} from "ol/geom";
 import axios from "axios";
@@ -50,13 +51,6 @@ export default class App extends React.Component<AppProps, AppState> {
                             <div className={"control-sidebar"}>
                                 <div className={"edit-container"}>
                                     <ControlPanel />
-                                </div>
-                                <div className={"status-container"}>
-                                    {/*<StatusDisplay />*/}
-                                    <InterdictionZoneView />
-                                </div>
-                                <div className={"view-container"}>
-                                    <EditZoneView />
                                 </div>
                             </div>
                         </div>

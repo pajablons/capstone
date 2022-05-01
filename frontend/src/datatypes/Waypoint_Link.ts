@@ -7,7 +7,9 @@ export default class Waypoint_Link {
 
     constructor(src: Waypoint, dst: Waypoint, isActive: boolean = true) {
         this.src = src
+        src.edges.push(this)
         this.dst = dst
+        dst.edges.push(this)
         this.isActive = isActive
     }
 }

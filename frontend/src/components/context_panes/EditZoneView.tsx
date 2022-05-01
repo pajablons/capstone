@@ -13,16 +13,23 @@ interface EditZoneViewState {
 
 export default class EditZoneView extends React.Component<EditZoneViewProps, EditZoneViewState> {
     static contextType = AppContext
+    langData = require('../../localize/lang.json')
 
     constructor(props: EditZoneViewProps) {
         super(props)
+    }
+
+    setEditMode() {
+        this.context.setControlMode({
+            mode: "edit-wz"
+        })
     }
 
     render() {
         let zoneRows = new Array<JSX.Element>()
         Array.from(this.context.zones.values()).forEach((zone: any) => {
             zoneRows.push(
-                <tr key={zone.id}>
+                <tr key={zone.id} className={'data-table-row'}>
                     <td>{zone.id}</td>
                     <td><input defaultValue={zone.weight} /></td>
                     <td><input defaultValue={zone.name} /></td>
@@ -31,7 +38,9 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
         })
 
         return (
-            <div style={{overflow: "scroll"}}>
+            <div style={{overflow: "auto", height: "100%", maxHeight: "100%", width: "100%"}}>
+                <button value={"edit-wz"} onClick={this.setEditMode.bind(this)}>{this.langData['controls']['edit-wz'][this.context.locale.lang]}</button>
+
                 <table className={"editTable"}>
                     <thead>
                         <tr>

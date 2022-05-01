@@ -31,13 +31,17 @@ export default class ExecutionControlTable extends React.Component<ExecutionCont
     }
 
     findInterdictionZones(evt: any) {
-        API_Engine.loadIZL(this.context.searchArea, this.context.waypoints).then((value: Array<Feature<Geometry>>) => {
+        API_Engine.loadIZL(this.context.searchArea, this.context.edges).then((value: Array<Feature<Geometry>>) => {
+            this.context.setControlMode("none")
             this.context.setInterdictionZones(value)
+            if (value.length > 0) {
+                this.context.setSelectedIZTier(0)
+            }
         })
     }
 
     genRoutes(evt: any) {
-        API_Engine.generateRoute(this.context.waypoints).then((routes: Array<Feature<Geometry>>) => {
+        API_Engine.generateRoute(this.context.edges).then((routes: Array<Feature<Geometry>>) => {
             this.context.setRoutes(routes)
         })
     }
