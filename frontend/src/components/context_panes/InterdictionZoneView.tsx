@@ -4,6 +4,7 @@ import {Geometry} from "ol/geom";
 import {Feature} from "ol";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import API_Engine from "../../api/API_Engine";
+import {RequestState} from "../../ServerRequestState";
 
 interface InterdictionZoneViewProps {
 
@@ -32,16 +33,25 @@ export default class InterdictionZoneView extends React.Component<InterdictionZo
     }
 
     findInterdictionZones(evt: any) {
+        this.context.setStatus(RequestState.LOADING)
+        this.context.setControlMode("none")
         API_Engine.loadIZL(this.context.searchArea, this.context.edges).then((value: Array<Feature<Geometry>>) => {
-            this.context.setControlMode("none")
             this.context.setInterdictionZones(value)
             if (value.length > 0) {
                 this.context.setSelectedIZTier(0)
             }
+            this.context.setStatus(RequestState.READY)
+        })
+    }
+
+    exitEditMode() {
+        this.context.setControlMode({
+            mode: "none"
         })
     }
 
     render() {
+        console.log(this.context.status)
         let tabHeaders = new Array<JSX.Element>()
         let tabPanels = new Array<JSX.Element>()
         let zoneData = new Map<number, Array<JSX.Element>>()
@@ -93,15 +103,30 @@ export default class InterdictionZoneView extends React.Component<InterdictionZo
             )
         }
 
-        console.log(this.context.searchArea)
-
         return (
             <div>
-                <button value={"edit-search-area"} onClick={this.setSearchAreaMode.bind(this)}>{this.langData['controls']['set-search-area'][this.context.locale.lang]}</button>
-                <button disabled={this.context.searchArea.length === 0 || this.context.edges.length === 0}
+                {["edit-search-area"].includes(this.context.controlMode.mode) &&
+                    <button
+                        onClick={this.exitEditMode.bind(this)}
+                    >
+                        {this.langData['controls']['end-edit-wz'][this.context.locale.lang]}
+                    </button>
+                }
+
+                {!["edit-search-area"].includes(this.context.controlMode.mode) &&
+                    <button
+                        disabled={this.context.status != RequestState.READY}
+                        value={"edit-search-area"}
+                        onClick={this.setSearchAreaMode.bind(this)}
+                    >
+                        {this.langData['controls']['set-search-area'][this.context.locale.lang]}
+                    </button>
+                }
+
+                <button disabled={this.context.searchArea.length === 0 || this.context.edges.length === 0 || this.context.status != RequestState.READY}
                     onClick={this.findInterdictionZones.bind(this)}
                 >
-                    {this.langData['controls']['interdict'][this.context.locale.lang]}
+                    {this.context.status === RequestState.READY ? this.langData['controls']['interdict'][this.context.locale.lang] : this.langData['controls']['processing'][this.context.locale.lang]}
                 </button>
 
                 <Tabs defaultIndex={this.context.selectedTier}

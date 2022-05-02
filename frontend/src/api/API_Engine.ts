@@ -18,12 +18,14 @@ export default class API_Engine {
 
             let response = await axios.get(`/api/routing/getRoute?pid=${1}&src=${src.id}&dst=${dst.id}`)
             response.data['segments'].forEach((feature: any) => {
-                newRoutes.push(new Feature<Geometry>({
+                let rte = new Feature<Geometry>({
                     id: feature['id'],
                     cost: feature['cost'],
                     geometry: new MultiLineString(feature.geom['coordinates']).transform("EPSG:4326", "EPSG:3857")
-                }))
-                console.log("Added a feature")
+                })
+                newRoutes.push(rte)
+                edge.route_id = feature['id']
+                edge.cost = feature['cost']
             })
         }))
         return newRoutes
@@ -61,6 +63,14 @@ export default class API_Engine {
             }
         }
         return gridSquares
+    }
+
+    static async deleteWZ(wz: Array<WeightedZone>) {
+        await axios.post("/api/laydown/delete/weightedzones", wz)
+    }
+
+    static async insertWZ(wz: Array<WeightedZone>) {
+        await axios.post("/api/laydown/add/weightzones", wz)
     }
 
     static async createWzl(): Promise<Array<WeightedZoneStore>> {

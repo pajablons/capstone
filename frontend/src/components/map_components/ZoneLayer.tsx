@@ -50,42 +50,42 @@ export default class ZoneLayer extends React.Component<ZoneLayerProps, ZoneLayer
     }
 
     deleteZone(feature: Feature<Geometry>) {
-        let id = feature.get('id')
-        console.log("in here with id")
-        console.log(id)
-        if (feature.get('is_tmp')) {
-            const newAddedFeats = this.context.addedZones.filter((value: WeightedZoneStore) => {
-                console.log(`${value.id} | ${id}`)
-                return value.id != id
+        console.log("Deleting: " + feature)
+        API_Engine.deleteWZ([Util.featureToWZ(feature)]).then(() => {
+            API_Engine.createWzl().then((zones) => {
+                let zMap = new Map<number, WeightedZoneStore>()
+                zones.forEach((z: WeightedZoneStore) => {
+                    zMap.set(z.id, z)
+                })
+                this.context.setZones(zMap)
             })
-            this.context.setAddedZones(newAddedFeats)
-        } else {
-            this.context.deletedZones.push(feature)
-            const zones = this.context.zones
-            zones.delete(id)
-            this.context.setZones(zones)
-            console.log("Deleted")
-        }
+        })
     }
 
     addWeightZone(evt: BaseEvent) {
         let vecSource = evt.target as VectorSource<Geometry>
-        const newData = new Array<WeightedZoneStore>()
+        const newData = new Array<WeightedZone>()
         if (vecSource.forEachFeature) {
             vecSource.forEachFeature((feature) => {
-                let id = -1
-                if (!!feature.get('id'))
-                    id = feature.get('id')
-                else id = this.tmp_feature_id++
-                newData.push(new WeightedZoneStore(id, feature.getGeometry() as Polygon, feature.get('weight'), feature.get('name'), true))
+                newData.push(Util.featureToWZ(feature))
             })
 
             if (newData.length > 0) {
                 vecSource.clear()
-                let newFeats = this.context.addedZones.concat(newData)
-                this.context.setAddedZones(newFeats)
             }
         }
+        if (newData.length == 0) {
+            return
+        }
+        API_Engine.insertWZ(newData).then(() => {
+            API_Engine.createWzl().then((zones) => {
+                let zMap = new Map<number, WeightedZoneStore>()
+                zones.forEach((z: WeightedZoneStore) => {
+                    zMap.set(z.id, z)
+                })
+                this.context.setZones(zMap)
+            })
+        })
     }
 
     render() {
@@ -99,17 +99,6 @@ export default class ZoneLayer extends React.Component<ZoneLayerProps, ZoneLayer
                             freehandCondition={noModifierKeys}
                         />
                     }
-                </RLayerVector>
-
-                <RLayerVector zIndex={this.props.zIndex + 1}>
-                    {this.context.addedZones.map((feature: WeightedZoneStore) => {
-                        console.log(feature.id)
-                        return <WeightedZoneFeature
-                            deletionFn={this.deleteZone.bind(this)}
-                            key={feature.id}
-                            feature={feature.feature}
-                        />
-                    })}
                 </RLayerVector>
 
                 <RLayerVector zIndex={this.props.zIndex}>

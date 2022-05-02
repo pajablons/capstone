@@ -2,6 +2,7 @@ import React from "react";
 import Waypoint from "../../datatypes/Waypoint";
 import AppContext from "../../AppContext";
 import {Point} from "ol/geom";
+import {RequestState} from "../../ServerRequestState";
 
 interface WaypointsViewProps {}
 
@@ -15,9 +16,21 @@ export default class WaypointsView extends React.Component<WaypointsViewProps, W
         super(props);
     }
 
-    enterEditMode(evt: any) {
+    enterAddMode(evt: any) {
         this.context.setControlMode({
-            mode: "edit-wp"
+            mode: "add-wp"
+        })
+    }
+
+    enterDelMode(evt: any) {
+        this.context.setControlMode({
+            mode: "del-wp"
+        })
+    }
+
+    exitEditMode() {
+        this.context.setControlMode({
+            mode: "none"
         })
     }
 
@@ -38,7 +51,31 @@ export default class WaypointsView extends React.Component<WaypointsViewProps, W
 
         return (
             <div style={{overflow: "auto", height: "100%", maxHeight: "100%", width: "100%"}}>
-                <button value={"edit-wp"} onClick={this.enterEditMode.bind(this)}>{this.langData['controls']['edit-wp'][this.context.locale.lang]}</button>
+                {this.context.controlMode.mode != "add-wp" &&
+                    <button
+                        disabled={this.context.status != RequestState.READY}
+                        onClick={this.enterAddMode.bind(this)}
+                    >
+                        {this.langData['controls']['add-wp'][this.context.locale.lang]}
+                    </button>
+                }
+
+                {["add-wp", 'del-wp'].includes(this.context.controlMode.mode) &&
+                    <button
+                        onClick={this.exitEditMode.bind(this)}
+                    >
+                        {this.langData['controls']['end-edit-wz'][this.context.locale.lang]}
+                    </button>
+                }
+
+                {this.context.controlMode.mode != "del-wp" &&
+                    <button
+                        disabled={this.context.status != RequestState.READY}
+                        onClick={this.enterDelMode.bind(this)}
+                    >
+                        {this.langData['controls']['del-wp'][this.context.locale.lang]}
+                    </button>
+                }
 
                 <table className={"editTable"}>
                     <thead>

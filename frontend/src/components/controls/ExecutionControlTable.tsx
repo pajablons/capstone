@@ -40,20 +40,11 @@ export default class ExecutionControlTable extends React.Component<ExecutionCont
         })
     }
 
-    genRoutes(evt: any) {
-        API_Engine.generateRoute(this.context.edges).then((routes: Array<Feature<Geometry>>) => {
-            this.context.setRoutes(routes)
-        })
-    }
-
     render() {
         return (
             <table>
                 <tbody>
                     <tr>
-                        <td>
-                            <button onClick={this.genRoutes.bind(this)}>{this.langData['controls']['gen-rts'][this.context.locale.lang]}</button>
-                        </td>
                         <td>
                             <button onClick={this.changeControlDisplay.bind(this)} value={"edit"}>
                                 {this.langData['controls']['start-edit'][this.context.locale.lang]}

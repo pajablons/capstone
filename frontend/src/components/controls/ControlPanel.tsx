@@ -1,5 +1,4 @@
 import React from "react";
-import EditControlTable from "./EditControlTable";
 import Locale from "../../localize/Locale";
 import ControlMode from "./ControlMode";
 import ExecutionControlTable from "./ExecutionControlTable";
@@ -10,6 +9,7 @@ import AppContext from "../../AppContext";
 import EditZoneView from "../context_panes/EditZoneView";
 import InterdictionZoneView from "../context_panes/InterdictionZoneView";
 import WaypointsView from "../context_panes/WaypointsView";
+import RoutesView from "../context_panes/RoutesView";
 
 export type ControlDisplayTier = "root" | "edit"
 
@@ -41,29 +41,17 @@ export default class ControlPanel extends React.Component<ControlPanelProps, Con
             <React.Fragment>
                 <Tabs>
                     <TabList>
-                        <Tab>Control</Tab>
-                        <Tab>Edit</Tab>
+                        <Tab>Routes</Tab>
                         <Tab>Weight Zones</Tab>
                         <Tab>Interdiction</Tab>
                         <Tab>Waypoints</Tab>
                     </TabList>
-                    <TabPanel>
-                        <div>
-                            <EditControlTable
-                                controlPanelModeFn={this.setDisplayTier.bind(this)}
-                            />
-                        </div>
+
+                    <TabPanel style={{position: "relative", maxHeight: "100%", overflow: "auto"}}>
+                        <RoutesView />
                     </TabPanel>
 
-                    <TabPanel>
-                    <div>
-                        <ExecutionControlTable
-                            controlPanelTierFn={this.setDisplayTier.bind(this)}
-                        />
-                    </div>
-                    </TabPanel>
-
-                    <TabPanel >
+                    <TabPanel style={{position: "relative", maxHeight: "100%", overflow: "auto"}}>
                         <EditZoneView />
                     </TabPanel>
                     <TabPanel style={{position: "relative", maxHeight: "100%", overflow: "auto"}}>

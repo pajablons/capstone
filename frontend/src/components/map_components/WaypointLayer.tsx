@@ -37,6 +37,10 @@ export default class WaypointLayer extends React.Component<WaypointLayerProps, W
     }
 
     setRouteNode(evt: any) {
+        if (this.context.controlMode.mode != "create-edge") {
+            return
+        }
+
         const id = evt.target.get('id')
         let targ = this.context.waypoints.filter((wp: Waypoint) => {
             return wp.id === id
@@ -55,14 +59,26 @@ export default class WaypointLayer extends React.Component<WaypointLayerProps, W
     }
 
     removeWaypoint(evt: any) {
+        if (this.context.controlMode.mode != "del-wp") {
+            return
+        }
+
         evt.preventDefault()
         const id = evt.target.get('id')
         axios.get(`/api/laydown/points/remove?point_id=${id}&prof_id=1`).then((response) => {
             this.context.removeWaypoint(id)
+
+            API_Engine.generateRoute(this.context.edges).then((routes: Array<Feature<Geometry>>) => {
+                this.context.setRoutes(routes)
+            })
         })
     }
 
     render() {
+        if (this.context.controlMode.mode != 'create-edge') {
+            this.openNetworkEdge = undefined
+        }
+
         return (
             <React.Fragment>
                 <RLayerVector zIndex={this.props.zIndex + 1}>

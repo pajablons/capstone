@@ -25,7 +25,7 @@ export default class MapPane extends React.Component<MapPaneProps, MapPaneState>
     static contextType = AppContext
 
     addWaypoint(e: any) {
-        if (this.context.controlMode.mode != "edit-wp") {
+        if (this.context.controlMode.mode != "add-wp") {
             return
         }
         const coords = (e as any).map.getCoordinateFromPixel(e.pixel)

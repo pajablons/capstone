@@ -73,11 +73,20 @@ export class ContextProvider extends Component {
     }
 
     deleteWaypoint(id: number) {
+        const target = this.state.waypoints.filter((value) => {
+            return value.id == id
+        })[0]
+
+        const newLinks = this.state.wp_connections.filter((link) => {
+            return !target.edges.includes(link)
+        })
+
         const ways = this.state.waypoints.filter((value) => {
             return value.id != id
         })
         this.setState({
-            waypoints: ways
+            waypoints: ways,
+            wp_connections: newLinks
         })
     }
 
@@ -105,15 +114,15 @@ export class ContextProvider extends Component {
         })
     }
 
-    setZones(zones: Array<WeightedZoneStore>) {
+    setStatus(state: RequestState) {
         this.setState({
-            zones: zones
+            status: state
         })
     }
 
-    setDeletedZones(deleted: Array<WeightedZoneStore>) {
+    setZones(zones: Array<WeightedZoneStore>) {
         this.setState({
-            deletedZones: deleted
+            zones: zones
         })
     }
 
@@ -166,6 +175,7 @@ export class ContextProvider extends Component {
 
                     // Application Status //
                     status: this.state.status,
+                    setStatus: this.setStatus.bind(this),
 
                     // Interdiction Zones //
                     izl: this.state.izl,
@@ -178,10 +188,6 @@ export class ContextProvider extends Component {
                     setSelectedIZTier: this.setSelectedTier.bind(this),
 
                     // Weighted Zones //
-                    addedZones: this.state.addedZones,
-                    setAddedZones: this.setAddedZones.bind(this),
-                    deletedZones: this.state.deletedZones,
-                    setDeletedZones: this.setDeletedZones.bind(this),
                     zones: this.state.zones,
                     setZones: this.setZones.bind(this)
                 }

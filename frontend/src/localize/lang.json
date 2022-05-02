@@ -1,15 +1,27 @@
 {
   "controls": {
+    "processing": {
+      "en": "Processing... Please Wait",
+      "fr": "Processing... Please Wait"
+    },
     "edit-wz": {
       "en": "Add / Remove Zones",
       "fr": "Modifier les Régions"
+    },
+    "end-edit-wz": {
+      "en": "Exit Edit Mode",
+      "fr": "Exit Edit Mode"
     },
     "edit-param": {
       "en": "Edit Parameters",
       "fr": "Modifier les Paramètres"
     },
-    "edit-wp": {
-      "en": "Add / Remove Waypoints",
+    "add-wp": {
+      "en": "Add Waypoints",
+      "fr": "Modifier les Points de Cheminement"
+    },
+    "del-wp": {
+      "en": "Delete Waypoints",
       "fr": "Modifier les Points de Cheminement"
     },
     "gen-rts": {
