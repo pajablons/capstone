@@ -80,7 +80,7 @@ export default class RoutesView extends React.Component<RoutesViewProps, RoutesV
                     <tr>
                         <th>Source</th>
                         <th>Dest</th>
-                        <th>Cost</th>
+                        <th>Cost (km)</th>
                     </tr>
                     </thead>
                     <tbody>

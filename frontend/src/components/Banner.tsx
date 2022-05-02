@@ -46,6 +46,9 @@ export default class Banner extends React.Component<BannerProps, BannerState> {
                         </tbody>
                     </table>
                 </div>
+                <div className={"profile-select"}>
+                    Test
+                </div>
                 <div className={"lang_select"}>
                     <button value={"en"} onClick={this.localeClick.bind(this)}>English</button>
                     <button value={"fr"} onClick={this.localeClick.bind(this)}>French</button>
