@@ -62,7 +62,7 @@ export default class InterdictionZoneLayer extends React.Component<InterdictionZ
         })
         return (
             <React.Fragment>
-                {!!this.context.selectedIZ &&
+                {this.context.selectedIZ != undefined &&
                     <RLayerVector zIndex={this.props.zIndex + 4}>
                         {this.context.izl[this.context.selectedIZ].get('route').map((feature: any) => {
                             let seg = new Feature<Geometry>({id: feature['id'], cost: feature['cost'], geometry: new MultiLineString(feature.geom['coordinates']).transform("EPSG:4326", "EPSG:3857")})

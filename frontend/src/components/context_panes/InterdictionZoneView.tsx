@@ -66,9 +66,9 @@ export default class InterdictionZoneView extends React.Component<InterdictionZo
                     ident={feature.get('id')}
                     onClick={this.selectIZ.bind(this)}>
                     <td>{feature.get('id')}</td>
-                    <td>{feature.get('baseCost')}</td>
-                    <td>{feature.get('removalCost')}</td>
-                    <td>{100 * (((feature.get('removalCost') + feature.get('baseCost')) / feature.get('baseCost')) - 1)}</td>
+                    <td>{Math.round(feature.get('baseCost') * 1000) / 1000}</td>
+                    <td>{Math.round(feature.get('removalCost') * 1000) / 1000}</td>
+                    <td>{Math.round(100 * (((feature.get('removalCost') + feature.get('baseCost')) / feature.get('baseCost')) - 1) * 1000) / 1000}</td>
                 </tr>
             )
         })
@@ -89,8 +89,8 @@ export default class InterdictionZoneView extends React.Component<InterdictionZo
                             <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Base Cost</th>
-                                <th>Cost Increase (abs)</th>
+                                <th>Base Cost (km)</th>
+                                <th>Cost Increase (abs) (km)</th>
                                 <th>Cost Increase (%)</th>
                             </tr>
                             </thead>
