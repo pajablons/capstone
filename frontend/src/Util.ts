@@ -22,6 +22,8 @@ export default class Util {
         } else {
             wz.name = ""
         }
+        wz.collection = feat.get('collection')
+        wz.gtype = feat.get('gtype')
         return wz
     }
 }

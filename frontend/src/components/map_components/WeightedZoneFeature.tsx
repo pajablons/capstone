@@ -1,10 +1,11 @@
 import React from "react";
-import {RFeature, RPopup} from "rlayers";
+import {RFeature, ROverlay, RPopup} from "rlayers";
 import {Geometry} from "ol/geom";
 import {Feature} from "ol";
 import ControlMode from "../controls/ControlMode";
 import Locale from "../../localize/Locale";
 import AppContext from "../../AppContext";
+import {RStyle, RText} from "rlayers/style";
 
 interface WeightedZoneFeatureProps {
     feature: Feature<Geometry>
@@ -33,18 +34,9 @@ export default class WeightedZoneFeature extends React.Component<WeightedZoneFea
                 feature={this.props.feature}
                 onDblClick={this.deleteSelf.bind(this)}
             >
-                {this.context.controlMode.mode === "edit-param" &&
-                    <RPopup className={'card'} trigger={"click"}>
-                        <div className={'container'}>
-                            <p>{this.langData['featureData']['wz']['weight'][this.context.locale.lang]}: <input
-                                type={"text"}
-                                defaultValue={this.props.feature.get('weight')}
-                                name={"weight_input"}
-                                zone-id={this.props.feature.get('id')}
-                            /></p>
-                        </div>
-                    </RPopup>
-                }
+                <ROverlay autoPosition={true}>
+                    {this.props.feature.get('name')}
+                </ROverlay>
             </RFeature>
         )
     }

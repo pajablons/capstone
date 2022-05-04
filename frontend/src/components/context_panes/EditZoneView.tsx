@@ -9,6 +9,8 @@ import API_Engine from "../../api/API_Engine";
 import {Feature} from "ol";
 import {Geometry, Point, Polygon} from "ol/geom";
 import {buffer} from "ol/extent";
+import {Collapse} from "@mui/material";
+import CollapseTable from "./CollapseTable";
 
 interface EditZoneViewProps {
 
@@ -40,9 +42,10 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
 
     uploadFile(evt: any) {
         let reader = new FileReader()
+        let filename = evt.currentTarget.files[0]['name']
         reader.readAsText(evt.currentTarget.files[0])
 
-        reader.onload = (evt) => {
+        reader.onload = (event) => {
             let gjson = new GeoJSON().readFeatures(reader.result)
             let newData = new Array<WeightedZone>()
             gjson.forEach((data) => {
@@ -59,10 +62,11 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
                     ]
                 );
                 wz.geojson = geojson.writeGeometry(bufferPolygon)
-                console.log(wz.geojson)
                 wz.weight = 5
                 wz.name = ""
                 wz.profile_id = 1
+                wz.collection = filename
+                wz.gtype = "point"
                 newData.push(wz)
             })
             API_Engine.insertWZ(newData).then(() => {
@@ -77,16 +81,84 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
         }
     }
 
+    updateZoneWeight(evt: any) {
+        if (/^-?\d+$/.test(evt.currentTarget.value)) {
+            API_Engine.updateZoneWeight(evt.currentTarget.getAttribute('ident'), evt.currentTarget.value).then(() => {
+                API_Engine.createWzl().then((zones) => {
+                    let zMap = new Map<number, WeightedZoneStore>()
+                    zones.forEach((z: WeightedZoneStore) => {
+                        zMap.set(z.id, z)
+                    })
+                    this.context.setZones(zMap)
+                })
+            })
+        }
+    }
+
+    updateZoneName(evt: any) {
+        API_Engine.updateZoneName(evt.currentTarget.getAttribute('ident'), evt.currentTarget.value).then(() => {
+            API_Engine.createWzl().then((zones) => {
+                let zMap = new Map<number, WeightedZoneStore>()
+                zones.forEach((z: WeightedZoneStore) => {
+                    zMap.set(z.id, z)
+                })
+                this.context.setZones(zMap)
+            })
+        })
+    }
 
     render() {
-        let zoneRows = new Array<JSX.Element>()
+        let keys = new Array<string>()
+        let typeMap = new Map<string, string>()
+        let zoneRowMap = new Map<string, Array<JSX.Element>>()
         Array.from(this.context.zones.values()).forEach((zone: any) => {
-            zoneRows.push(
+            if (!zoneRowMap.has(zone.collection)) {
+                zoneRowMap.set(zone.collection, new Array<JSX.Element>())
+                typeMap.set(zone.collection, zone.baseFeature)
+                keys.push(zone.collection)
+            }
+            zoneRowMap.get(zone.collection)!.push(
                 <tr key={zone.id} className={'data-table-row'}>
                     <td>{zone.id}</td>
-                    <td><input defaultValue={zone.weight} /></td>
-                    <td><input defaultValue={zone.name} /></td>
+                    <td>
+                        <input
+                            defaultValue={zone.weight}
+                            // @ts-ignore
+                            ident={zone.id}
+                            onChange={this.updateZoneWeight.bind(this)}
+                        />
+                    </td>
+                    <td>
+                        <input
+                            defaultValue={zone.name}
+                            // @ts-ignore
+                            ident={zone.id}
+                            onChange={this.updateZoneName.bind(this)}
+                        />
+                    </td>
                 </tr>
+            )
+        })
+
+        let collapsibles = new Array<JSX.Element>()
+        keys.forEach((key) => {
+            collapsibles.push(
+                <CollapseTable name={!key || key.trim().length === 0 ? 'Unclassified' : key.trim()} type={typeMap.get(key)!}>
+                    <div style={{height: "100%", maxHeight: "100%", width: "100%"}}>
+                        <table className={"editTable"}>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Weight</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {zoneRowMap.get(key)}
+                            </tbody>
+                        </table>
+                    </div>
+                </CollapseTable>
             )
         })
 
@@ -112,15 +184,8 @@ export default class EditZoneView extends React.Component<EditZoneViewProps, Edi
                 <input type={"file"} onChange={this.uploadFile.bind(this)} />
 
                 <table className={"editTable"}>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Weight</th>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
                     <tbody>
-                        {zoneRows}
+                        {collapsibles}
                     </tbody>
                 </table>
             </div>

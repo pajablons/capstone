@@ -33,8 +33,13 @@ class UserLaydownServiceImpl implements UserLaydownService {
     @Override
     void insertWeightedZones(List<Weighted_Zone> wzl) {
         for (Weighted_Zone wz : wzl) {
-            this.zoneRepository.insert(wz.geojson, wz.weight, wz.name, wz.profile_id)
+            this.zoneRepository.insert(wz.geojson, wz.weight, wz.name, wz.profile_id, wz.collection, wz.gtype)
         }
+    }
+
+    @Override
+    void bufferZones(String collection, int meters) {
+        this.zoneRepository.bufferZones(meters, collection)
     }
 
     @Override
@@ -62,5 +67,14 @@ class UserLaydownServiceImpl implements UserLaydownService {
     @Override
     void removeWaypoint(int point_id, int profile_id) {
         this.wp_repo.deletePoint(point_id, profile_id)
+    }
+
+    @Override
+    void updateWeight(int zone_id, int weight) {
+        this.zoneRepository.updateWeight(zone_id, weight)
+    }
+
+    void updateZoneName(int zone_id, String name) {
+        this.zoneRepository.updateZoneName(zone_id, name)
     }
 }

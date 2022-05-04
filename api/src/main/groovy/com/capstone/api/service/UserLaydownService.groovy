@@ -12,4 +12,7 @@ interface UserLaydownService {
     void insertWaypoint(int point_id, int profile_id)
     List<Routing_Waypoint> getWaypoints(int profile_id)
     void removeWaypoint(int point_id, int profile_id)
+    void updateWeight(int zone_id, int weight)
+    void updateZoneName(int zone_id, String name)
+    void bufferZones(String collection, int meters)
 }

@@ -31,6 +31,14 @@ export default class API_Engine {
         return newRoutes
     }
 
+    static async updateZoneWeight(zone_id: number, weight: number) {
+        await axios.get(`/api/laydown/update/weightzone/weight?id=${zone_id}&weight=${weight}`)
+    }
+
+    static async updateZoneName(zone_id: number, name: string) {
+        await axios.get(`/api/laydown/update/weightzone/name?id=${zone_id}&name=${name}`)
+    }
+
 
     static async loadIZL(searchArea: Array<Feature<Geometry>>, edges: Array<Waypoint_Link>): Promise<Array<Feature<Geometry>>> {
         if (searchArea.length == 0) {
@@ -73,6 +81,10 @@ export default class API_Engine {
         await axios.post("/api/laydown/add/weightzones", wz)
     }
 
+    static async bufferZone(collName: string, distance: number) {
+        await axios.get(`/api/laydown/zones/buffer?meters=${distance}&collection=${collName}`)
+    }
+
     static async createWzl(): Promise<Array<WeightedZoneStore>> {
         let response = await axios.get("/api/laydown/retr/weightzones?pid=1")
         let wzc = new Array<WeightedZone>();
@@ -86,7 +98,9 @@ export default class API_Engine {
                 wz.id as number,
                 new Polygon(geometry['coordinates']).transform('EPSG:4326', 'EPSG:3857') as Polygon,
                 wz.weight as number,
-                wz.name as string
+                wz.name as string,
+                wz.collection as string,
+                wz.gtype as string
             ))
         })
         return data

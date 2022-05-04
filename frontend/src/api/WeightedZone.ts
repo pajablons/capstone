@@ -7,4 +7,6 @@ export default class WeightedZone {
     geojson: string | undefined
     weight: number | undefined
     profile_id: number | undefined
+    collection: string | undefined
+    gtype: string | undefined
 }

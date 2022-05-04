@@ -63,6 +63,18 @@ class Weighted_Zone implements Serializable {
         this.profile_id = profileid
     }
 
+    @Column(name = "collection")
+    String collection
+    void setCollection(String coll) {
+        this.collection = coll
+    }
+
+    @Column(name = "gtype")
+    String gtype
+    void setGtype(String type) {
+        this.gtype = type
+    }
+
     @Override
     String toString() {
         return this.geojson.toString() + "\n"

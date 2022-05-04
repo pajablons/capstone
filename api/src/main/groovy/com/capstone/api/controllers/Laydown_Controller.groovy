@@ -22,6 +22,16 @@ class Laydown_Controller {
     @Autowired
     private DbUtilityService dbService
 
+    @GetMapping("/update/weightzone/weight")
+    void updateWeight(@RequestParam("id") int zone_id, @RequestParam("weight") int weight) {
+        this.laydownService.updateWeight(zone_id, weight)
+    }
+
+    @GetMapping("/update/weightzone/name")
+    void updateZoneName(@RequestParam("id") int zone_id, @RequestParam("name") String name) {
+        this.laydownService.updateZoneName(zone_id, name)
+    }
+
     @GetMapping("/retr/weightzones")
     List<Weighted_Zone> getWeightedZones(@RequestParam("pid") int profile_id) {
         List<Weighted_Zone> zones = laydownService.retrieveByProfileId(profile_id)
@@ -49,6 +59,12 @@ class Laydown_Controller {
     @GetMapping("/points/all")
     List<Routing_Waypoint> getWaypointsByProfile(@RequestParam("profile") int profile_id) {
         return this.laydownService.getWaypoints(profile_id)
+    }
+
+    @GetMapping("zones/buffer")
+    void bufferZones(@RequestParam("meters") int meters, @RequestParam("collection") String collname) {
+        this.laydownService.bufferZones(collname, meters)
+        print("Buffered: " + collname + " " + meters)
     }
 
     @PostMapping("/add/weightzones")
