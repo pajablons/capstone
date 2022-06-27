@@ -21,6 +21,11 @@ interface Weighted_Zone_Repository extends JpaRepository<Weighted_Zone, Integer>
     void bufferZones(@Param("meters") int meters, @Param("collname") String collname)
 
     @Modifying
+    @Query(value = "DELETE FROM weighted_zones", nativeQuery = true)
+    @Transactional
+    void deleteAll()
+
+    @Modifying
     @Query(value = "DELETE FROM weighted_zones WHERE id = :id", nativeQuery = true)
     @Transactional
     void deleteZone(@Param("id") int id)

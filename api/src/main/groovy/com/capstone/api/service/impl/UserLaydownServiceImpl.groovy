@@ -1,10 +1,8 @@
 package com.capstone.api.service.impl
 
 import com.capstone.api.repository.Routing_Waypoint_Repo
-import com.capstone.api.repository.Routing_Wayzone_Repo
 import com.capstone.api.repository.Weighted_Zone_Repository
 import com.capstone.api.serial.Routing_Waypoint
-import com.capstone.api.serial.Routing_Wayzone
 import com.capstone.api.serial.Weighted_Zone
 import com.capstone.api.service.UserLaydownService
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,6 +38,12 @@ class UserLaydownServiceImpl implements UserLaydownService {
     @Override
     void bufferZones(String collection, int meters) {
         this.zoneRepository.bufferZones(meters, collection)
+    }
+
+    @Override
+    void resetAll() {
+        this.zoneRepository.deleteAll()
+        this.wp_repo.deleteAll()
     }
 
     @Override

@@ -15,4 +15,5 @@ interface UserLaydownService {
     void updateWeight(int zone_id, int weight)
     void updateZoneName(int zone_id, String name)
     void bufferZones(String collection, int meters)
+    void resetAll()
 }

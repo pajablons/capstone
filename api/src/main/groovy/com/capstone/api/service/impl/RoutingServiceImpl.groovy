@@ -1,7 +1,6 @@
 package com.capstone.api.service.impl
 
 import com.capstone.api.repository.RouteRepo
-import com.capstone.api.repository.Routing_Wayzone_Repo
 import com.capstone.api.repository.Weighted_Zone_Repository
 import com.capstone.api.serial.GenCoverParams
 import com.capstone.api.serial.InterdictionZone
@@ -37,9 +36,6 @@ class RoutingServiceImpl implements RoutingService {
     DbUtilityService dbService
 
     @Autowired
-    Routing_Wayzone_Repo wayzone_repo
-
-    @Autowired
     Weighted_Zone_Repository weightedZoneRepository
 
     @Autowired
@@ -47,7 +43,9 @@ class RoutingServiceImpl implements RoutingService {
 
     @Override
     Route generateRoute(int profile_id, long src, long dst) {
-        String sql = "with routing as (select edge, cost from pgr_dijkstra('select edge.id as id, edge.source as source, edge.target as target, coalesce(CASE WHEN cost + weight < 0 THEN 0.0000001 ELSE cost + weight END, cost) as cost from ((select id as id, source as source, target as target, geom_way, km as cost from af_2po_4pgr) edge left join (select geom, weight from weighted_zones) zones on zones.geom && edge.geom_way) WHERE edge.geom_way && ST_Expand((SELECT ST_Collect(geom_vertex) FROM af_2po_vertex WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false)) select id, km as cost, geom_way from af_2po_4pgr verts left join routing on routing.edge = verts.id where id in (select edge from routing)"
+//        String subQuery = """jjkagdkljagd"""
+//        String fake = """with routing as ('$subQuery')"""
+        String sql = """with routing as (select edge, cost from pgr_dijkstra('select edge.id as id, edge.source as source, edge.target as target, coalesce(CASE WHEN cost + weight < 0 THEN 0.0000001 ELSE cost + weight END, cost) as cost from ((select id as id, source as source, target as target, geom_way, km as cost from af_2po_4pgr) edge left join (select geom, weight from weighted_zones) zones on zones.geom && edge.geom_way) WHERE edge.geom_way && ST_Expand((SELECT ST_Collect(geom_vertex) FROM af_2po_vertex WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false)) select id, km as cost, geom_way from af_2po_4pgr verts left join routing on routing.edge = verts.id where id in (select edge from routing)"""
 //        String sql = "select id, km as cost, geom_way from af_2po_4pgr where id in (select edge from pgr_dijkstra('select edge.id as id, edge.source as source, edge.target as target, coalesce(cost + weight, cost) as cost from ((select id as id, source as source, target as target, geom_way, km as cost from af_2po_4pgr) edge left join (select geom, weight from weighted_zones) zones on zones.geom && edge.geom_way) WHERE edge.geom_way && ST_Expand((SELECT ST_Collect(geom_vertex) FROM af_2po_vertex WHERE id IN (:src, :dst)), 2)', :src, :dst, directed=>false))"
         sql = sql.replaceAll(':src', "" + src)
         sql = sql.replaceAll(':dst', "" + dst)
@@ -84,7 +82,7 @@ class RoutingServiceImpl implements RoutingService {
         for (int i = 0; i < trials; i++) {
             println("Got here")
             if (geometry != "") {
-                this.weightedZoneRepository.insert(geometry, 900000000, "tmp_delete_me", profile_id)
+                this.weightedZoneRepository.insert(geometry, 900000000, "tmp_delete_me", profile_id, "tmp_interdict", "poly")
             }
 
             Route option = this.generateRoute(profile_id, src, dst)

@@ -32,6 +32,11 @@ class Laydown_Controller {
         this.laydownService.updateZoneName(zone_id, name)
     }
 
+    @GetMapping("/resetAll")
+    void resetAll() {
+        this.laydownService.resetAll()
+    }
+
     @GetMapping("/retr/weightzones")
     List<Weighted_Zone> getWeightedZones(@RequestParam("pid") int profile_id) {
         List<Weighted_Zone> zones = laydownService.retrieveByProfileId(profile_id)

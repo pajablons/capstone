@@ -19,6 +19,11 @@ interface Routing_Waypoint_Repo extends JpaRepository<Routing_Waypoint, Integer>
     List<Routing_Waypoint> retrievePointsByProfile(@Param("prof_id") int prof_id)
 
     @Modifying
+    @Query(value = "DELETE FROM waypoints", nativeQuery = true)
+    @Transactional
+    void deleteAll()
+
+    @Modifying
     @Query(value = "DELETE FROM waypoints WHERE point_id = :id and profile_id = :prof_id", nativeQuery = true)
     @Transactional
     void deletePoint(@Param("id") int id, @Param("prof_id") int prof_id)

@@ -73,6 +73,10 @@ export default class API_Engine {
         return gridSquares
     }
 
+    static async deleteAll() {
+        await axios.get("/api/laydown/resetAll")
+    }
+
     static async deleteWZ(wz: Array<WeightedZone>) {
         await axios.post("/api/laydown/delete/weightedzones", wz)
     }

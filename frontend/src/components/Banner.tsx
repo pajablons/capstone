@@ -1,5 +1,6 @@
 import React from "react";
 import AppContext from "../AppContext";
+import API_Engine from "../api/API_Engine";
 
 interface BannerProps {
 }
@@ -20,6 +21,12 @@ export default class Banner extends React.Component<BannerProps, BannerState> {
         })
     }
 
+    resetLaydown(evt: any) {
+        API_Engine.deleteAll().then(() => {
+
+        })
+    }
+
     render() {
         return (
             <div className={"banner"}>
@@ -29,10 +36,11 @@ export default class Banner extends React.Component<BannerProps, BannerState> {
                             <tr>
                                 <td>
                                     <img
-                                        src={"https://osc.umd.edu/img/logos/26_logo.jpg"}
+                                        onClick={this.resetLaydown.bind(this)}
+                                        src={"uber-logo.png"}
                                         style={{
                                             maxWidth: "100%",
-                                            maxHeight: "90px",
+                                            maxHeight: "32px",
                                             display: "inline",
                                         }}
                                     />
@@ -47,7 +55,6 @@ export default class Banner extends React.Component<BannerProps, BannerState> {
                     </table>
                 </div>
                 <div className={"profile-select"}>
-                    Test
                 </div>
                 <div className={"lang_select"}>
                     <button value={"en"} onClick={this.localeClick.bind(this)}>English</button>
